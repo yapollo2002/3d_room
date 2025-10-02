@@ -1,7 +1,7 @@
 body {
     margin: 0;
     overflow: hidden;
-    background-color: #1a1a1a; /* Darker background for contrast */
+    background-color: #1a1a1a;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -11,78 +11,92 @@ body {
 }
 
 .container {
-    perspective: 800px; /* Adjust perspective for a more immersive inside view */
-    width: 100%; /* Take full width of the body */
-    height: 100%; /* Take full height of the body */
+    perspective: 800px; /* Essential for 3D depth */
+    width: 100%;
+    height: 100%;
     position: relative;
-    /* We don't need a visible border on the container when we're inside */
+    /* We want the room to fill the whole view */
+    display: flex; /* Helps center the room within the container */
+    justify-content: center;
+    align-items: center;
 }
 
 #room {
-    width: 100%;
-    height: 100%;
-    position: absolute;
+    width: 600px;  /* Define the logical width of the room */
+    height: 400px; /* Define the logical height of the room */
+    position: relative;
     transform-style: preserve-3d;
-    /* Initial transform to rotate "our view" (the room) to face forward */
-    transform: rotateX(0deg) rotateY(0deg);
+    /* We'll set the room's depth here, conceptually */
+    transform: translateZ(-300px) rotateX(0deg) rotateY(0deg); /* Pushes the entire room back so our view is inside */
     transition: transform 0.1s linear; /* Smooth rotation */
 }
 
 /* Base wall styling */
 .wall {
     position: absolute;
-    width: 600px; /* Define logical room dimensions */
-    height: 400px;
-    background: rgba(120, 120, 120, 0.9); /* Default wall color, slightly brighter */
+    width: 600px;  /* Match room width */
+    height: 400px; /* Match room height */
+    background: rgba(120, 120, 120, 0.9);
     border: 1px solid #777;
     box-sizing: border-box;
     display: flex;
     justify-content: center;
     align-items: center;
     overflow: hidden;
-    backface-visibility: hidden; /* Hide the back of the walls when rotating */
+    backface-visibility: hidden; /* Hide the back of the walls */
 }
 
-/* Positioning and rotating each wall for an INSIDE view */
-/* We imagine the "camera" (our eye) is at the center (0,0,0) of the container */
-/* So walls are positioned AROUND that center */
+/* Positioning and rotating each wall for a definitive INSIDE view */
+/* The key here is to translate by half the depth/width/height AFTER rotation */
+/* The room itself (the #room div) is translated back by its half-depth to place the viewer at its center */
 
-.front {
-    /* This wall is behind us when we start looking forward */
-    transform: rotateY(180deg) translateZ(300px);
-    background: linear-gradient(to bottom right, #888, #555);
-}
+/* Back wall: This is the wall we look at initially when facing forward */
 .back {
-    /* This is the wall we see directly in front of us initially */
-    transform: translateZ(300px);
+    /* No rotation needed, just push it back half of the depth (600px / 2 = 300px) */
+    transform: translateZ(-300px);
     background: linear-gradient(to bottom left, #888, #555);
 }
+
+/* Front wall: This is the wall behind us when facing forward */
+.front {
+    /* Rotate 180 degrees to face inward, then push back */
+    transform: rotateY(180deg) translateZ(-300px);
+    background: linear-gradient(to bottom right, #888, #555);
+}
+
+/* Right wall: This is the wall to our left initially */
 .left {
-    /* This wall is to our right initially */
-    transform: rotateY(90deg) translateZ(300px);
+    /* Rotate -90 degrees around Y to be on the left, then push back by half depth */
+    transform: rotateY(-90deg) translateZ(-300px);
     background: linear-gradient(to right, #777, #444);
 }
+
+/* Left wall: This is the wall to our right initially */
 .right {
-    /* This wall is to our left initially */
-    transform: rotateY(-90deg) translateZ(300px);
+    /* Rotate 90 degrees around Y to be on the right, then push back by half depth */
+    transform: rotateY(90deg) translateZ(-300px);
     background: linear-gradient(to left, #777, #444);
 }
+
+/* Ceiling (Top wall): This is above us */
 .top {
-    /* Ceiling: Rotated to be above us, pushed up by half room height */
-    transform: rotateX(-90deg) translateZ(200px);
+    /* Rotate -90 degrees around X to be flat above, then push up by half room height (400px / 2 = 200px) */
+    transform: rotateX(-90deg) translateZ(-200px);
     width: 600px; /* Room width */
-    height: 600px; /* Room depth */
+    height: 600px; /* Room depth */ /* This needs to be depth, not height */
     background: linear-gradient(to bottom, #999, #666);
 }
+
+/* Floor (Bottom wall): This is below us */
 .bottom {
-    /* Floor: Rotated to be below us, pushed down by half room height */
-    transform: rotateX(90deg) translateZ(200px);
+    /* Rotate 90 degrees around X to be flat below, then push down by half room height */
+    transform: rotateX(90deg) translateZ(-200px);
     width: 600px; /* Room width */
-    height: 600px; /* Room depth */
+    height: 600px; /* Room depth */ /* This needs to be depth, not height */
     background: linear-gradient(to top, #999, #666);
 }
 
-/* Features inside the room - no change needed for positioning */
+/* Features inside the room */
 .window {
     width: 100px;
     height: 120px;
