@@ -15,28 +15,29 @@ body {
     width: 100%;
     height: 100%;
     position: relative;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    /* The container acts as the viewport for our 3D scene */
+    /* No need to flexbox align the container itself if room takes full size */
 }
 
 #room {
-    width: 600px;  /* Room's horizontal dimension */
-    height: 400px; /* Room's vertical dimension */
-    position: relative;
+    /* The room itself doesn't need its own width/height here, its children define it */
+    position: absolute;
+    top: 50%; /* Center the room vertically */
+    left: 50%; /* Center the room horizontally */
     transform-style: preserve-3d;
-    /* Translate the entire room back by half its depth to place the viewer inside */
-    /* Let's define the room's depth as 600px for simplicity, so half is 300px */
-    transform: translateZ(-300px) rotateX(0deg) rotateY(0deg);
+    /* We move the room back so the viewer (at 0,0,0) is inside it. */
+    /* Let's define room depth = 600px, width = 600px, height = 400px */
+    /* So, half depth = 300px, half width = 300px, half height = 200px */
+    transform: translate(-50%, -50%) translateZ(-300px) rotateX(0deg) rotateY(0deg);
     transition: transform 0.1s linear;
+    /* Optional: for debugging, uncomment to see the room's bounding box */
+    /* border: 1px dashed red; */
+    /* width: 600px; height: 400px; */ /* Defining these here can sometimes mess with internal calculations, better to let walls define the space */
 }
 
 /* Base wall styling */
 .wall {
     position: absolute;
-    /* Default width/height, will be overridden for top/bottom */
-    width: 600px;
-    height: 400px;
     background: rgba(120, 120, 120, 0.9);
     border: 1px solid #777;
     box-sizing: border-box;
@@ -45,84 +46,49 @@ body {
     align-items: center;
     overflow: hidden;
     backface-visibility: hidden;
+    /* Every wall should be centered on its own local origin before translation/rotation */
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%); /* Centering each wall */
 }
 
-/* Room Dimensions & Positions: */
-/* Let's assume the room is a cube of W=600px, H=400px, D=600px (Depth) */
-/* Half W = 300px, Half H = 200px, Half D = 300px */
+/* Room Dimensions: W=600px, H=400px, D=600px */
+/* Half W=300px, Half H=200px, Half D=300px */
 
-/* Back wall: Directly in front of the viewer */
+/* Back wall: Dimensions WxH, Positioned D/2 back */
 .back {
-    transform: translateZ(-300px); /* Push back by half depth */
+    width: 600px;
+    height: 400px;
+    transform: translate(-50%, -50%) translateZ(-300px);
     background: linear-gradient(to bottom left, #888, #555);
 }
 
-/* Front wall: Behind the viewer */
+/* Front wall: Dimensions WxH, Positioned D/2 forward, rotated 180deg */
 .front {
-    transform: rotateY(180deg) translateZ(-300px); /* Rotate to face inward, then push back */
+    width: 600px;
+    height: 400px;
+    transform: translate(-50%, -50%) rotateY(180deg) translateZ(-300px);
     background: linear-gradient(to bottom right, #888, #555);
 }
 
-/* Left wall: To the viewer's right */
-.right { /* Named 'right' because it's on the right side of the visual field from the front */
-    transform: rotateY(90deg) translateZ(-300px); /* Rotate 90deg to be on the right, push back */
-    background: linear-gradient(to left, #777, #444);
-}
-
-/* Right wall: To the viewer's left */
-.left { /* Named 'left' because it's on the left side of the visual field from the front */
-    transform: rotateY(-90deg) translateZ(-300px); /* Rotate -90deg to be on the left, push back */
+/* Left wall: Dimensions DxH, Positioned W/2 left, rotated -90deg */
+.left { /* This will be the wall on the visual left when looking straight ahead */
+    width: 600px; /* This is the DEPTH of the room */
+    height: 400px; /* This is the HEIGHT of the room */
+    transform: translate(-50%, -50%) rotateY(-90deg) translateZ(-300px); /* Pushed back by half of its *own* width (which is room depth) */
     background: linear-gradient(to right, #777, #444);
 }
 
-/* Ceiling (Top wall) */
+/* Right wall: Dimensions DxH, Positioned W/2 right, rotated 90deg */
+.right { /* This will be the wall on the visual right when looking straight ahead */
+    width: 600px; /* This is the DEPTH of the room */
+    height: 400px; /* This is the HEIGHT of the room */
+    transform: translate(-50%, -50%) rotateY(90deg) translateZ(-300px); /* Pushed back by half of its *own* width (room depth) */
+    background: linear-gradient(to left, #777, #444);
+}
+
+/* Ceiling (Top wall): Dimensions WxD, Positioned H/2 up, rotated 90deg on X */
 .top {
     width: 600px;  /* Room width */
     height: 600px; /* Room depth */
-    transform: rotateX(90deg) translateZ(-200px); /* Rotate to be flat, push up by half height */
-    background: linear-gradient(to bottom, #999, #666);
-}
-
-/* Floor (Bottom wall) */
-.bottom {
-    width: 600px;  /* Room width */
-    height: 600px; /* Room depth */
-    transform: rotateX(-90deg) translateZ(-200px); /* Rotate to be flat, push down by half height */
-    background: linear-gradient(to top, #999, #666);
-}
-
-/* Features inside the room */
-.window {
-    width: 100px;
-    height: 120px;
-    background: skyblue;
-    border: 5px solid #333;
-    box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
-    border-radius: 3px;
-    position: relative;
-    overflow: hidden;
-}
-
-.door {
-    width: 100px;
-    height: 180px;
-    background: #442211;
-    border: 5px solid #221100;
-    border-radius: 3px;
-    position: relative;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-.door::before {
-    content: '';
-    position: absolute;
-    width: 10px;
-    height: 10px;
-    background: gold;
-    border-radius: 50%;
-    left: 15px;
-    top: 50%;
-    transform: translateY(-50%);
-}
+    transform: translate(-50%, -50%) rotateX(90
