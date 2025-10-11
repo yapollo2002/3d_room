@@ -15,7 +15,6 @@ body {
     width: 100%;
     height: 100%;
     position: relative;
-    /* We want the room to fill the whole view, but centered */
     display: flex;
     justify-content: center;
     align-items: center;
@@ -25,7 +24,7 @@ body {
     /* Define the core dimensions of our room cube */
     --room-width: 600px;
     --room-height: 400px;
-    --room-depth: 600px; /* For a cohesive box, let's make depth match width */
+    --room-depth: 600px;
 
     position: relative; /* Relative to .container */
     width: var(--room-width);   /* Set the dimensions of the #room div */
@@ -36,9 +35,6 @@ body {
     /* And then push it back so the viewer is inside its 3D space */
     transform: translateZ(calc(-1 * var(--room-depth) / 2)) rotateX(0deg) rotateY(0deg);
     transition: transform 0.1s linear;
-
-    /* For debugging, uncomment to see the #room bounding box relative to its parent */
-    /* border: 1px dashed blue; */
 }
 
 /* Base wall styling */
@@ -52,72 +48,138 @@ body {
     align-items: center;
     overflow: hidden;
     backface-visibility: hidden;
-
-    /* Critically: Every wall will be full size of the #room, and then translated/rotated. */
-    /* Its own 3D transform will position it. */
-    top: 0; /* Align to the top of the #room div */
-    left: 0; /* Align to the left of the #room div */
+    top: 0;
+    left: 0;
 }
 
 
-/* Wall Positioning - These are rotated and translated relative to the #room's origin (top-left corner of its 2D space) */
-/* The key is that the #room itself is then transformed to place its *center* where the viewer is. */
-
-/* Back wall: Dimensions WxH */
+/* Wall Positioning */
 .back {
     width: var(--room-width);
     height: var(--room-height);
-    /* Push back by half depth, facing outward from the center */
     transform: translateZ(calc(-1 * var(--room-depth) / 2));
     background: linear-gradient(to bottom left, #888, #555);
 }
-
-/* Front wall: Dimensions WxH */
 .front {
     width: var(--room-width);
     height: var(--room-height);
-    /* Rotate 180deg (to face inward), then push back by half depth */
     transform: rotateY(180deg) translateZ(calc(-1 * var(--room-depth) / 2));
     background: linear-gradient(to bottom right, #888, #555);
 }
-
-/* Left wall: Dimensions DxH */
 .left {
-    width: var(--room-depth); /* The 'width' of the side wall is the room's depth */
+    width: var(--room-depth);
     height: var(--room-height);
-    /* Rotate -90deg, then push back by half room width (its local Z-axis points left) */
     transform: rotateY(-90deg) translateZ(calc(-1 * var(--room-width) / 2));
     background: linear-gradient(to right, #777, #444);
 }
-
-/* Right wall: Dimensions DxH */
 .right {
-    width: var(--room-depth); /* The 'width' of the side wall is the room's depth */
+    width: var(--room-depth);
     height: var(--room-height);
-    /* Rotate 90deg, then push back by half room width (its local Z-axis points right) */
     transform: rotateY(90deg) translateZ(calc(-1 * var(--room-width) / 2));
     background: linear-gradient(to left, #777, #444);
 }
-
-/* Ceiling (Top wall): Dimensions WxD */
 .top {
     width: var(--room-width);
-    height: var(--room-depth); /* The 'height' of the ceiling is the room's depth */
-    /* Rotate 90deg, then push back by half room height (its local Z-axis points up) */
+    height: var(--room-depth);
     transform: rotateX(90deg) translateZ(calc(-1 * var(--room-height) / 2));
     background: linear-gradient(to bottom, #999, #666);
 }
-
-/* Floor (Bottom wall): Dimensions WxD */
 .bottom {
     width: var(--room-width);
-    height: var(--room-depth); /* The 'height' of the floor is the room's depth */
-    /* Rotate -90deg, then push back by half room height (its local Z-axis points down) */
+    height: var(--room-depth);
     transform: rotateX(-90deg) translateZ(calc(-1 * var(--room-height) / 2));
     background: linear-gradient(to top, #999, #666);
 }
 
-/* Features inside the room - these should be centered within their parent wall */
+/* Axis Styling */
+.axis {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    /* Center the axis, then push to its start point */
+    transform-origin: 0 0; /* Important: rotate/translate from its beginning */
+    pointer-events: none; /* Make them not interfere with mouse events */
+    opacity: 0.7;
+}
+
+.x-axis {
+    width: var(--room-width); /* Extend across the room's width */
+    height: 2px;
+    background-color: red;
+    transform: translateZ(0) translateY(-1px); /* Position at Y=0, Z=0 of room, slight vertical adjust */
+}
+
+.y-axis {
+    width: 2px;
+    height: var(--room-height); /* Extend across the room's height */
+    background-color: green;
+    transform: translateZ(0) translateX(-1px); /* Position at X=0, Z=0 of room, slight horizontal adjust */
+}
+
+.z-axis {
+    width: 2px;
+    height: var(--room-depth); /* Extend across the room's depth */
+    background-color: blue;
+    transform: rotateY(90deg) translateZ(0) translateX(-1px); /* Rotate to align with depth, then position */
+    /* Wait, the Z axis should point forward/backward. */
+    /* A div has its local Y-axis vertical, X-axis horizontal. */
+    /* To make it a Z-axis, we need to rotate it on Y by 90deg, or on X by -90deg. */
+    /* Let's make it a line that goes INTO the screen */
+    width: 2px; /* A thin line */
+    height: 2px; /* Start as a point */
+    background-color: blue;
+    transform: rotateX(-90deg) translateZ(calc(var(--room-depth) / 2)) translateX(-1px) translateY(-1px);
+    /* This previous transform for z-axis was incorrect. Let's fix it more simply. */
+    /* The Z-axis runs from back to front of the room. */
+    /* A simple line along the Z-axis: */
+    width: 2px;
+    height: 2px; /* A pixel-sized point */
+    transform: translate(-1px, -1px); /* Center it */
+    box-shadow: 0 0 0 1px blue; /* Use box-shadow for a consistent point or short line */
+    /* To draw a Z-axis line, it's actually just a line segment that changes perspective */
+    /* Let's make it a small cube for visibility */
+    width: 10px;
+    height: 10px;
+    background-color: blue;
+    transform: translate(-5px, -5px) translateZ(0); /* A small blue square at the origin */
+}
+
+/* Redefining axes to be clearer */
+.axis {
+    position: absolute;
+    top: 50%; /* Center of the #room's 2D space */
+    left: 50%; /* Center of the #room's 2D space */
+    pointer-events: none;
+    opacity: 0.8;
+    transform-style: preserve-3d; /* Allows for axis arrows or more complex shapes */
+    transform: translate(-50%, -50%); /* Center the axis origin */
+}
+
+.x-axis {
+    width: var(--room-width);
+    height: 4px;
+    background-color: red;
+    /* Position the X-axis (width) horizontally */
+    transform: translate(-50%, -50%) rotateY(0deg) translateZ(0);
+}
+
+.y-axis {
+    width: 4px;
+    height: var(--room-height);
+    background-color: green;
+    /* Position the Y-axis (height) vertically */
+    transform: translate(-50%, -50%) rotateX(0deg) translateZ(0);
+}
+
+.z-axis {
+    width: 4px; /* Thickness */
+    height: var(--room-depth); /* Length along depth */
+    background-color: blue;
+    /* Rotate 90 degrees around X-axis so it points along Z (depth) */
+    transform: translate(-50%, -50%) rotateX(90deg) translateZ(0);
+}
+
+/* Features inside the room */
 .window {
     width: 100px;
     height: 120px;
@@ -125,10 +187,10 @@ body {
     border: 5px solid #333;
     box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
     border-radius: 3px;
-    position: relative; /* Important for centering with top/left/transform */
+    position: relative;
     top: 50%;
     left: 50%;
-    transform: translate(-50%, -50%); /* Centering the window on its wall */
+    transform: translate(-50%, -50%);
     overflow: hidden;
 }
 
@@ -138,10 +200,10 @@ body {
     background: #442211;
     border: 5px solid #221100;
     border-radius: 3px;
-    position: relative; /* Important for centering with top/left/transform */
+    position: relative;
     top: 50%;
     left: 50%;
-    transform: translate(-50%, -50%); /* Centering the door on its wall */
+    transform: translate(-50%, -50%);
     display: flex;
     justify-content: center;
     align-items: center;
