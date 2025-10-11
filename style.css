@@ -11,31 +11,39 @@ body {
 }
 
 .container {
-    perspective: 800px; /* Viewer's perspective */
+    perspective: 800px; /* Establishes the 3D depth */
     width: 100%;
     height: 100%;
     position: relative;
-    display: flex; /* Helps center the room within the container */
+    /* We want the room to fill the whole view, but centered */
+    display: flex;
     justify-content: center;
     align-items: center;
 }
 
 #room {
-    width: 600px;  /* Logical width of the room */
-    height: 400px; /* Logical height of the room */
-    position: relative;
+    /* Define the core dimensions of our room cube */
+    --room-width: 600px;
+    --room-height: 400px;
+    --room-depth: 600px; /* For a cohesive box, let's make depth match width */
+
+    position: relative; /* Relative to .container */
+    width: var(--room-width);   /* Set the dimensions of the #room div */
+    height: var(--room-height); /* Set the dimensions of the #room div */
     transform-style: preserve-3d;
-    /* This transforms the entire room container. We need to center it on the Y axis too. */
-    /* Previous was translateZ(-300px). Adding translateY to center vertically. */
-    transform: translateY(-200px) translateZ(-300px) rotateX(0deg) rotateY(0deg);
+
+    /* Center the #room div itself in the viewport */
+    /* And then push it back so the viewer is inside its 3D space */
+    transform: translateZ(calc(-1 * var(--room-depth) / 2)) rotateX(0deg) rotateY(0deg);
     transition: transform 0.1s linear;
+
+    /* For debugging, uncomment to see the #room bounding box relative to its parent */
+    /* border: 1px dashed blue; */
 }
 
 /* Base wall styling */
 .wall {
     position: absolute;
-    width: 600px;  /* Default width for vertical walls */
-    height: 400px; /* Default height for vertical walls */
     background: rgba(120, 120, 120, 0.9);
     border: 1px solid #777;
     box-sizing: border-box;
@@ -44,61 +52,72 @@ body {
     align-items: center;
     overflow: hidden;
     backface-visibility: hidden;
-    /* Walls are now relative to the #room's new centered position */
+
+    /* Critically: Every wall will be full size of the #room, and then translated/rotated. */
+    /* Its own 3D transform will position it. */
+    top: 0; /* Align to the top of the #room div */
+    left: 0; /* Align to the left of the #room div */
 }
 
-/* Room Dimensions: W=600px, H=400px, D=600px */
-/* Half W = 300px, Half H = 200px, Half D = 300px */
 
-/* Back wall: Directly in front of the viewer */
+/* Wall Positioning - These are rotated and translated relative to the #room's origin (top-left corner of its 2D space) */
+/* The key is that the #room itself is then transformed to place its *center* where the viewer is. */
+
+/* Back wall: Dimensions WxH */
 .back {
-    transform: translateZ(-300px);
+    width: var(--room-width);
+    height: var(--room-height);
+    /* Push back by half depth, facing outward from the center */
+    transform: translateZ(calc(-1 * var(--room-depth) / 2));
     background: linear-gradient(to bottom left, #888, #555);
 }
 
-/* Front wall: Behind the viewer */
+/* Front wall: Dimensions WxH */
 .front {
-    transform: rotateY(180deg) translateZ(-300px);
+    width: var(--room-width);
+    height: var(--room-height);
+    /* Rotate 180deg (to face inward), then push back by half depth */
+    transform: rotateY(180deg) translateZ(calc(-1 * var(--room-depth) / 2));
     background: linear-gradient(to bottom right, #888, #555);
 }
 
-/* Left wall: To the viewer's right */
-.right {
-    transform: rotateY(90deg) translateZ(-300px);
-    background: linear-gradient(to left, #777, #444);
-}
-
-/* Right wall: To the viewer's left */
+/* Left wall: Dimensions DxH */
 .left {
-    transform: rotateY(-90deg) translateZ(-300px);
+    width: var(--room-depth); /* The 'width' of the side wall is the room's depth */
+    height: var(--room-height);
+    /* Rotate -90deg, then push back by half room width (its local Z-axis points left) */
+    transform: rotateY(-90deg) translateZ(calc(-1 * var(--room-width) / 2));
     background: linear-gradient(to right, #777, #444);
 }
 
-/* Ceiling (Top wall) */
+/* Right wall: Dimensions DxH */
+.right {
+    width: var(--room-depth); /* The 'width' of the side wall is the room's depth */
+    height: var(--room-height);
+    /* Rotate 90deg, then push back by half room width (its local Z-axis points right) */
+    transform: rotateY(90deg) translateZ(calc(-1 * var(--room-width) / 2));
+    background: linear-gradient(to left, #777, #444);
+}
+
+/* Ceiling (Top wall): Dimensions WxD */
 .top {
-    width: 600px;  /* Room width */
-    height: 600px; /* Room depth */
-    /* rotateX(90deg) points its local Z-axis UP. translateZ(-200px) moves it DOWN by 200px. */
-    /* If it's too low, we need to push it UP more. So, translateZ(-400px) or similar. */
-    /* Or, the issue is that the #room itself isn't centered vertically. */
-    /* With #room translateY(-200px), walls are now centered vertically. */
-    /* The transform here should position the top of the wall at the top of the room's local space. */
-    transform: rotateX(90deg) translateZ(-200px); /* This should place the top wall correctly */
+    width: var(--room-width);
+    height: var(--room-depth); /* The 'height' of the ceiling is the room's depth */
+    /* Rotate 90deg, then push back by half room height (its local Z-axis points up) */
+    transform: rotateX(90deg) translateZ(calc(-1 * var(--room-height) / 2));
     background: linear-gradient(to bottom, #999, #666);
 }
 
-/* Floor (Bottom wall) */
+/* Floor (Bottom wall): Dimensions WxD */
 .bottom {
-    width: 600px;  /* Room width */
-    height: 600px; /* Room depth */
-    /* rotateX(-90deg) points its local Z-axis DOWN. translateZ(-200px) moves it DOWN by 200px. */
-    /* This means the bottom of the wall should be at the bottom. */
-    transform: rotateX(-90deg) translateZ(-200px); /* This should place the bottom wall correctly */
+    width: var(--room-width);
+    height: var(--room-depth); /* The 'height' of the floor is the room's depth */
+    /* Rotate -90deg, then push back by half room height (its local Z-axis points down) */
+    transform: rotateX(-90deg) translateZ(calc(-1 * var(--room-height) / 2));
     background: linear-gradient(to top, #999, #666);
 }
 
-/* Features inside the room - no changes needed */
-/* They are positioned relative to their parent wall, so they should move with the wall */
+/* Features inside the room - these should be centered within their parent wall */
 .window {
     width: 100px;
     height: 120px;
@@ -106,7 +125,10 @@ body {
     border: 5px solid #333;
     box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
     border-radius: 3px;
-    position: relative;
+    position: relative; /* Important for centering with top/left/transform */
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%); /* Centering the window on its wall */
     overflow: hidden;
 }
 
@@ -116,7 +138,10 @@ body {
     background: #442211;
     border: 5px solid #221100;
     border-radius: 3px;
-    position: relative;
+    position: relative; /* Important for centering with top/left/transform */
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%); /* Centering the door on its wall */
     display: flex;
     justify-content: center;
     align-items: center;
