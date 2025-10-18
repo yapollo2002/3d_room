@@ -1,47 +1,35 @@
-document.addEventListener('DOMContentLoaded', () => {
-    const room = document.getElementById('room');
-    let rotateX = 0; // Current rotation around X-axis (looking up/down)
-    let rotateY = 0; // Current rotation around Y-axis (looking left/right)
+// Simple orbit animation to visualize the room
+const room = document.getElementById("room");
 
-    let isDragging = false;
-    let startX;
-    let startY;
+let angleX = -10;
+let angleY = -20;
 
-    // Mouse down event to start dragging
-    document.addEventListener('mousedown', (e) => { // Listen on document for better dragging experience
-        isDragging = true;
-        startX = e.clientX;
-        startY = e.clientY;
-        room.style.cursor = 'grabbing';
-    });
+function animate() {
+    angleY += 0.3; // Slowly rotate around Y
+    room.style.transform = `rotateX(${angleX}deg) rotateY(${angleY}deg)`;
+    requestAnimationFrame(animate);
+}
 
-    // Mouse move event to rotate the room (which gives the illusion of rotating our view)
-    document.addEventListener('mousemove', (e) => {
-        if (!isDragging) return;
+animate();
 
-        const deltaX = e.clientX - startX;
-        const deltaY = e.clientY - startY;
+// OPTIONAL: Mouse control
+let isDragging = false;
+let prevX, prevY;
 
-        // For an "inside" view, dragging RIGHT should rotate the ROOM LEFT (decreasing Y)
-        // Dragging DOWN should rotate the ROOM UP (decreasing X)
-        rotateY += deltaX * 0.1; // Invert deltaX for Y rotation
-        rotateX -= deltaY * 0.1; // Invert deltaY for X rotation (already felt natural, but confirming)
+document.addEventListener("mousedown", e => {
+    isDragging = true;
+    prevX = e.clientX;
+    prevY = e.clientY;
+});
 
-        // Limit vertical rotation (looking up/down)
-        rotateX = Math.max(-80, Math.min(80, rotateX)); // Max 80 degrees up/down from horizontal
+document.addEventListener("mouseup", () => isDragging = false);
 
-        room.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
-
-        startX = e.clientX;
-        startY = e.clientY;
-    });
-
-    // Mouse up event to stop dragging
-    document.addEventListener('mouseup', () => {
-        isDragging = false;
-        room.style.cursor = 'grab';
-    });
-
-    // Initial cursor style
-    document.body.style.cursor = 'grab'; // Apply to body
+document.addEventListener("mousemove", e => {
+    if (!isDragging) return;
+    const dx = e.clientX - prevX;
+    const dy = e.clientY - prevY;
+    prevX = e.clientX;
+    prevY = e.clientY;
+    angleY += dx * 0.5;
+    angleX -= dy * 0.5;
 });
