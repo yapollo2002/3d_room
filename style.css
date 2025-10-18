@@ -32,9 +32,11 @@ body {
     height: var(--room-height);
     transform-style: preserve-3d;
 
-    /* ✅ Shift the entire room upward so the floor sits correctly */
+    /* ✅ View the room slightly from above, and place pivot on the floor */
+    transform-origin: center bottom;
+
+    /* Rotate around the bottom instead of the center */
     transform:
-        translateY(calc(var(--room-height) / -2))
         translateZ(calc(-1 * var(--room-depth) / 2))
         rotateX(0deg)
         rotateY(0deg);
@@ -86,7 +88,7 @@ body {
     background: linear-gradient(to left, #777, #444);
 }
 
-/* ✅ Corrected ceiling and floor positioning */
+/* ✅ Correct ceiling and floor positioning */
 .top {
     width: var(--room-width);
     height: var(--room-depth);
@@ -176,7 +178,7 @@ body {
     transform: translateY(-50%);
 }
 
-/* Optional debug: show wall names
+/* Optional debug helper
 .wall::after {
     content: attr(class);
     color: white;
