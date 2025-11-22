@@ -1,18 +1,9 @@
-// Simple orbit animation to visualize the room
 const room = document.getElementById("room");
 
-let angleX = -10;
-let angleY = -20;
+let angleX = 0;
+let angleY = 0;
 
-function animate() {
-    angleY += 0.3; // Slowly rotate around Y
-    room.style.transform = `rotateX(${angleX}deg) rotateY(${angleY}deg)`;
-    requestAnimationFrame(animate);
-}
-
-animate();
-
-// OPTIONAL: Mouse control
+// Mouse look
 let isDragging = false;
 let prevX, prevY;
 
@@ -22,14 +13,24 @@ document.addEventListener("mousedown", e => {
     prevY = e.clientY;
 });
 
-document.addEventListener("mouseup", () => isDragging = false);
+document.addEventListener("mouseup", () => {
+    isDragging = false;
+});
 
 document.addEventListener("mousemove", e => {
     if (!isDragging) return;
+
     const dx = e.clientX - prevX;
     const dy = e.clientY - prevY;
+
     prevX = e.clientX;
     prevY = e.clientY;
-    angleY += dx * 0.5;
-    angleX -= dy * 0.5;
+
+    angleY += dx * 0.3;  // look left/right
+    angleX -= dy * 0.3;  // look up/down
+
+    // Clamp vertical rotation
+    angleX = Math.max(-80, Math.min(80, angleX));
+
+    room.style.transform = `translateZ(300px) rotateX(${angleX}deg) rotateY(${angleY}deg)`;
 });

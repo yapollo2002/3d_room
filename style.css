@@ -7,10 +7,9 @@ body {
     align-items: center;
     height: 100vh;
     font-family: Arial, sans-serif;
-    color: white;
 }
 
-/* Perspective wrapper */
+/* Perspective container (camera) */
 .container {
     perspective: 1000px;
     width: 100%;
@@ -20,7 +19,7 @@ body {
     align-items: center;
 }
 
-/* The 3D room cube */
+/* ROOM (camera is inside) */
 #room {
     --room-width: 600px;
     --room-height: 400px;
@@ -30,132 +29,96 @@ body {
     width: var(--room-width);
     height: var(--room-height);
     transform-style: preserve-3d;
-    transform: rotateX(-10deg) rotateY(-20deg);
-    transition: transform 0.1s linear;
+
+    /* Put camera inside the cube */
+    transform: translateZ(300px) rotateX(0deg) rotateY(0deg);
 }
 
-/* Base wall style */
+/* Basic wall properties */
 .wall {
     position: absolute;
-    background: rgba(120, 120, 120, 0.9);
-    border: 1px solid #555;
+    background: rgba(100, 100, 100, 0.9);
+    border: 1px solid #444;
     box-sizing: border-box;
-    display: flex;
-    justify-content: center;
-    align-items: center;
     backface-visibility: hidden;
 }
 
-/* Position each wall */
+/* Walls facing inward */
 .front {
     width: var(--room-width);
     height: var(--room-height);
-    transform: translateZ(calc(var(--room-depth) / 2));
-    background: linear-gradient(to bottom right, #999, #666);
+    background: #777;
+    transform: translateZ(calc(var(--room-depth)/2)) rotateY(180deg);
 }
 
 .back {
     width: var(--room-width);
     height: var(--room-height);
-    transform: rotateY(180deg) translateZ(calc(var(--room-depth) / 2));
-    background: linear-gradient(to bottom left, #777, #444);
+    background: #666;
+    transform: translateZ(calc(var(--room-depth)/2));
 }
 
 .left {
     width: var(--room-depth);
     height: var(--room-height);
-    transform: rotateY(-90deg) translateZ(calc(var(--room-width) / 2));
-    background: linear-gradient(to right, #666, #333);
+    background: #555;
+    transform: rotateY(-90deg) translateZ(calc(var(--room-width)/2)) rotateY(180deg);
 }
 
 .right {
     width: var(--room-depth);
     height: var(--room-height);
-    transform: rotateY(90deg) translateZ(calc(var(--room-width) / 2));
-    background: linear-gradient(to left, #666, #333);
+    background: #555;
+    transform: rotateY(90deg) translateZ(calc(var(--room-width)/2)) rotateY(180deg);
 }
 
-/* ✅ Correct ceiling & floor */
 .top {
     width: var(--room-width);
     height: var(--room-depth);
-    transform: rotateX(90deg) translateZ(calc(var(--room-height) / 1.33));
-    background: linear-gradient(to bottom, #aaa, #777);
+    background: #888;
+    transform: rotateX(90deg) translateZ(300px) rotateX(180deg);
 }
 
 .bottom {
     width: var(--room-width);
     height: var(--room-depth);
-    transform: rotateX(-90deg) translateZ(calc(var(--room-height) / 4));
-    background: linear-gradient(to top, #aaa, #777);
-}
-
-/* Axis visualization */
-.axis {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    pointer-events: none;
-    transform-style: preserve-3d;
-    opacity: 0.8;
-}
-
-.x-axis {
-    width: var(--room-width);
-    height: 4px;
-    background-color: red;
-    transform: translate(-50%, -50%);
-}
-
-.y-axis {
-    width: 4px;
-    height: var(--room-height);
-    background-color: green;
-    transform: translate(-50%, -50%);
-}
-
-.z-axis {
-    width: 4px;
-    height: var(--room-depth);
-    background-color: blue;
-    transform: translate(-50%, -50%) rotateX(90deg);
+    background: #aaa;
+    transform: rotateX(-90deg) translateZ(100px) rotateX(180deg);
 }
 
 /* Window */
 .window {
-    width: 100px;
-    height: 120px;
+    width: 120px;
+    height: 140px;
     background: skyblue;
-    border: 5px solid #333;
-    box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.5);
-    border-radius: 3px;
-    position: relative;
+    border: 5px solid #222;
+    position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
+    box-shadow: inset 0 0 20px rgba(0,0,0,0.4);
 }
 
 /* Door */
 .door {
-    width: 100px;
-    height: 180px;
-    background: #442211;
+    width: 120px;
+    height: 200px;
+    background: brown;
     border: 5px solid #221100;
-    border-radius: 3px;
-    position: relative;
+    position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
 }
 
 .door::before {
-    content: '';
+    content: "";
     position: absolute;
-    width: 10px;
-    height: 10px;
+    width: 12px;
+    height: 12px;
     background: gold;
     border-radius: 50%;
-    left: 15px;
+    left: 20px;
     top: 50%;
     transform: translateY(-50%);
 }
