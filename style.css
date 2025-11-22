@@ -79,14 +79,14 @@ body {
 .top {
     width: var(--room-width);
     height: var(--room-depth);
-    transform: rotateX(90deg) translateZ(calc(var(--room-height) / 2));
+    transform: rotateX(90deg) translateZ(calc(var(--room-height) / 1.33));
     background: linear-gradient(to bottom, #aaa, #777);
 }
 
 .bottom {
     width: var(--room-width);
     height: var(--room-depth);
-    transform: rotateX(-90deg) translateZ(calc(var(--room-height) / 2));
+    transform: rotateX(-90deg) translateZ(calc(var(--room-height) / 4));
     background: linear-gradient(to top, #aaa, #777);
 }
 
