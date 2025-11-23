@@ -9,7 +9,7 @@ body {
     font-family: Arial, sans-serif;
 }
 
-/* Perspective container (camera) */
+/* Perspective viewport */
 .container {
     perspective: 1000px;
     width: 100%;
@@ -30,20 +30,19 @@ body {
     height: var(--room-height);
     transform-style: preserve-3d;
 
-    /* Put camera inside the cube */
-    transform: translateZ(300px) rotateX(0deg) rotateY(0deg);
+    transform: translateZ(300px);
 }
 
-/* Basic wall properties */
+/* Walls */
 .wall {
     position: absolute;
-    background: rgba(100, 100, 100, 0.9);
+    background: rgba(100,100,100,0.9);
     border: 1px solid #444;
     box-sizing: border-box;
     backface-visibility: hidden;
 }
 
-/* Walls facing inward */
+/* Inside-facing transforms */
 .front {
     width: var(--room-width);
     height: var(--room-height);
